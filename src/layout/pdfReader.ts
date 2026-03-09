@@ -1,4 +1,4 @@
-import type { PDFPageLayout, PDFLayout } from '../types';
+import type { PDFPageLayout, PDFLayout } from "../types";
 
 interface RawTextItem {
   str: string;
@@ -22,15 +22,19 @@ export async function readPDFPages(
   buffer: ArrayBuffer | Buffer,
 ): Promise<RawPageData[]> {
   // pdfjs-dist is isomorphic; use the legacy build for Node.js compat
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js') as typeof import('pdfjs-dist');
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
-  // Disable the worker in Node.js — let it run on the main thread
-  // @ts-expect-error: NodeCanvasFactory is not in types
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-
-  const data = buffer instanceof ArrayBuffer ? buffer : buffer.buffer;
-  const loadingTask = pdfjsLib.getDocument({ data });
+  // Convert to Uint8Array (pdfjs-dist requires Uint8Array, not Buffer)
+  // Create a copy to avoid detached ArrayBuffer issues
+  const data = new Uint8Array(
+    buffer instanceof ArrayBuffer ? buffer : Buffer.from(buffer),
+  );
+  const loadingTask = pdfjsLib.getDocument({
+    data,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  });
   const pdf = await loadingTask.promise;
 
   const pages: RawPageData[] = [];
@@ -41,8 +45,9 @@ export async function readPDFPages(
     const textContent = await page.getTextContent();
 
     const textItems: RawTextItem[] = textContent.items
-      .filter((item): item is import('pdfjs-dist/types/src/display/api').TextItem =>
-        'str' in item,
+      .filter(
+        (item): item is import("pdfjs-dist/types/src/display/api").TextItem =>
+          "str" in item,
       )
       .map((item) => ({
         str: item.str,

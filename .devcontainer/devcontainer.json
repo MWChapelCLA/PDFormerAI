@@ -32,7 +32,20 @@
     }
   },
 
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "sudo chown -R node /workspace/node_modules && npm install",
+
+  "forwardPorts": [3050, 3055],
+
+  "portsAttributes": {
+    "3050": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "3055": {
+      "label": "Vite UI",
+      "onAutoForward": "openBrowser"
+    }
+  },
 
   "remoteUser": "node",
 

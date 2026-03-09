@@ -3,7 +3,7 @@ import type {
   ExtractedFormData,
   BoundField,
   FieldValue,
-} from '../types';
+} from "../types";
 
 /**
  * Merges a PDFLayout with ExtractedFormData to produce BoundField[].
@@ -26,10 +26,21 @@ export function bindLayoutToData(
         extractedData[slot.label] ??
         extractedData[slot.label.toLowerCase()];
 
+      // Determine the default value based on field type
+      let defaultValue: FieldValue;
+      if (slot.type === "table") {
+        defaultValue = [];
+      } else if (slot.type === "checkbox") {
+        defaultValue = false;
+      } else {
+        defaultValue = "";
+      }
+
       boundFields.push({
         slot,
-        value: value ?? '',
-        editable: value !== undefined,
+        value: value ?? defaultValue,
+        // All fields are editable now, since we provide defaults for all
+        editable: true,
       });
     }
   }

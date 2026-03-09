@@ -1,9 +1,10 @@
-import React from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import type { PDFormerAIEditorProps } from '../types';
-import { usePDFormerAI } from '../hooks/usePDFormerAI';
-import { PageCanvas } from './PageCanvas';
+import React, { useMemo } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import type { PDFormerAIEditorProps } from "../types";
+import { usePDFormerAI } from "../hooks/usePDFormerAI";
+import { normalizeLayout } from "../utils/normalizeLayout";
+import { PageCanvas } from "./PageCanvas";
 
 /**
  * PDFormerAIEditor
@@ -25,8 +26,11 @@ export const PDFormerAIEditor: React.FC<PDFormerAIEditorProps> = ({
   onError: _onError,
   readOnly = false,
   scale = 1.5,
-  saveLabel = 'Save',
+  saveLabel = "Save",
 }) => {
+  // Normalize layout for compact, left-aligned display
+  const normalizedLayout = useMemo(() => normalizeLayout(layout), [layout]);
+
   const { boundFields, updateField, getFormData } = usePDFormerAI(
     layout,
     extractedData,
@@ -39,16 +43,16 @@ export const PDFormerAIEditor: React.FC<PDFormerAIEditorProps> = ({
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
         gap: 0,
-        overflowX: 'auto',
+        overflowX: "auto",
         p: 2,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: "#f0f0f0",
       }}
     >
-      {layout.pages.map((page) => {
+      {normalizedLayout.pages.map((page) => {
         const pageFields = boundFields.filter(
           (bf) => bf.slot.pageNumber === page.pageNumber,
         );

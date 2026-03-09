@@ -1,6 +1,11 @@
-import type { IFormDataExtractor, PDFLayout, ExtractedFormData, PDFormerAIConfig } from '../types';
-import { createOpenAIClient, callChatCompletion } from './openaiClient';
-import { buildExtractionPrompt, buildExtractionUserMessage } from './prompt';
+import type {
+  IFormDataExtractor,
+  PDFLayout,
+  ExtractedFormData,
+  PDFormerAIConfig,
+} from "../types";
+import { createOpenAIClient, callChatCompletion } from "./openaiClient";
+import { buildExtractionPrompt, buildExtractionUserMessage } from "./prompt";
 
 /**
  * Built-in extractor that uses OpenAI (standard or Azure) to extract field
@@ -28,7 +33,12 @@ export class OpenAIExtractor implements IFormDataExtractor {
 
     let raw: string;
     try {
-      raw = await callChatCompletion(client, this.config, systemPrompt, userMessage);
+      raw = await callChatCompletion(
+        client,
+        this.config,
+        systemPrompt,
+        userMessage,
+      );
     } catch (err) {
       throw new Error(`OpenAIExtractor: AI call failed — ${String(err)}`);
     }
@@ -48,7 +58,9 @@ export class OpenAIExtractor implements IFormDataExtractor {
         );
         parsed = JSON.parse(repaired) as Record<string, unknown>;
       } catch {
-        throw new Error('OpenAIExtractor: AI returned malformed JSON and repair failed.');
+        throw new Error(
+          "OpenAIExtractor: AI returned malformed JSON and repair failed.",
+        );
       }
     }
 
@@ -72,11 +84,22 @@ function mapToSlotIds(
     for (const slot of page.fieldSlots) {
       // Try matching by slot ID first, then by label (case-insensitive)
       const byId = aiResult[slot.id];
-      const byLabel = aiResult[slot.label] ?? aiResult[slot.label.toLowerCase()];
+      const byLabel =
+        aiResult[slot.label] ?? aiResult[slot.label.toLowerCase()];
       const value = byId ?? byLabel;
 
+      // Include all fields, even empty strings, but skip undefined/null
       if (value !== undefined && value !== null) {
         output[slot.id] = value as string | number | boolean;
+      } else {
+        // Provide default empty values for fields not returned by AI
+        if (slot.type === "checkbox") {
+          output[slot.id] = false;
+        } else if (slot.type === "table") {
+          output[slot.id] = [];
+        } else {
+          output[slot.id] = "";
+        }
       }
     }
   }
@@ -86,12 +109,19 @@ function mapToSlotIds(
 
 /** Extract raw text from PDF using pdfjs-dist (reuses the layout reader path). */
 async function extractRawText(buffer: ArrayBuffer | Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js') as typeof import('pdfjs-dist');
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
-  const data = buffer instanceof ArrayBuffer ? buffer : buffer.buffer;
-  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  // Convert to Uint8Array (pdfjs-dist requires Uint8Array, not Buffer)
+  // Create a copy to avoid detached ArrayBuffer issues
+  const data = new Uint8Array(
+    buffer instanceof ArrayBuffer ? buffer : Buffer.from(buffer),
+  );
+  const pdf = await pdfjsLib.getDocument({
+    data,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  }).promise;
   const parts: string[] = [];
 
   for (let p = 1; p <= pdf.numPages; p++) {
@@ -99,11 +129,14 @@ async function extractRawText(buffer: ArrayBuffer | Buffer): Promise<string> {
     const tc = await page.getTextContent();
     parts.push(
       tc.items
-        .filter((i): i is import('pdfjs-dist/types/src/display/api').TextItem => 'str' in i)
+        .filter(
+          (i): i is import("pdfjs-dist/types/src/display/api").TextItem =>
+            "str" in i,
+        )
         .map((i) => i.str)
-        .join(' '),
+        .join(" "),
     );
   }
 
-  return parts.join('\n\n');
+  return parts.join("\n\n");
 }

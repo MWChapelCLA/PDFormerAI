@@ -3,13 +3,13 @@
 // ──────────────────────────────────────────────────────────────────
 
 export type FieldType =
-  | 'text'
-  | 'number'
-  | 'date'
-  | 'select'
-  | 'checkbox'
-  | 'radio'
-  | 'table';
+  | "text"
+  | "number"
+  | "date"
+  | "select"
+  | "checkbox"
+  | "radio"
+  | "table";
 
 // ──────────────────────────────────────────────────────────────────
 // PDF Layout — describes visual structure, no field values
@@ -37,10 +37,12 @@ export interface FieldSlot {
   pageNumber: number;
   /** Detected options for select / radio slots */
   options?: string[];
+  /** For text fields: whether to use multiline/textarea */
+  multiline?: boolean;
 }
 
 export interface StaticBlock {
-  kind: 'text' | 'image' | 'line' | 'rect';
+  kind: "text" | "image" | "line" | "rect";
   bbox: BoundingBox;
   /** Text content (for kind === 'text') */
   content?: string;

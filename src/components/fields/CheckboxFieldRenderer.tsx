@@ -1,7 +1,7 @@
-import React from 'react';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import type { FieldSlot } from '../../types';
+import React from "react";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import type { FieldSlot } from "../../types";
 
 interface Props {
   slot: FieldSlot;
@@ -27,15 +27,22 @@ export const CheckboxFieldRenderer: React.FC<Props> = ({
           checked={Boolean(value)}
           onChange={(e) => onChange(e.target.checked)}
           size="small"
-          inputProps={{ 'aria-label': slot.label }}
+          inputProps={{ "aria-label": slot.label }}
         />
       }
       sx={{
-        position: 'absolute',
+        position: "absolute",
         left: slot.bbox.x * scale,
         top: slot.bbox.y * scale,
         width: slot.bbox.width * scale,
         margin: 0,
+        overflow: "hidden",
+        "& .MuiFormControlLabel-label": {
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          fontSize: "0.75rem",
+        },
       }}
     />
   );

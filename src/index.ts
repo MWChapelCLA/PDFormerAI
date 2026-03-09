@@ -1,17 +1,21 @@
 // ─── Layout ────────────────────────────────────────────────────────────────
-export { extractPDFLayout } from './layout';
+export { extractPDFLayout } from "./layout";
 
 // ─── Data Extractors ───────────────────────────────────────────────────────
-export { OpenAIExtractor } from './extractor/openaiExtractor';
+export { OpenAIExtractor } from "./extractor/openaiExtractor";
+export { extractPDFSchemaData } from "./extractor/extractPDFSchemaData";
+export { configFromEnv } from "./extractor/configFromEnv";
+export type { ExtractionResult } from "./extractor/extractPDFSchemaData";
 
 // ─── React Component ───────────────────────────────────────────────────────
-export { PDFormerAIEditor } from './components/PDFormerAIEditor';
+export { PDFormerAIEditor } from "./components/PDFormerAIEditor";
 
 // ─── React Hook (headless) ─────────────────────────────────────────────────
-export { usePDFormerAI } from './hooks/usePDFormerAI';
+export { usePDFormerAI } from "./hooks/usePDFormerAI";
 
 // ─── Utilities ─────────────────────────────────────────────────────────────
-export { bindLayoutToData } from './utils/bindLayoutToData';
+export { bindLayoutToData } from "./utils/bindLayoutToData";
+export { normalizeLayout } from "./utils/normalizeLayout";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 export type {
@@ -33,4 +37,4 @@ export type {
   // Props
   PDFormerAIEditorProps,
   UsePDFormerAIResult,
-} from './types';
+} from "./types";

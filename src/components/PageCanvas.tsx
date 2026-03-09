@@ -1,8 +1,8 @@
-import React from 'react';
-import Box from '@mui/material/Box';
-import type { PDFPageLayout, BoundField, FieldValue } from '../types';
-import { FieldRenderer } from './fields/FieldRenderer';
-import { StaticBlockRenderer } from './StaticBlockRenderer';
+import React from "react";
+import Box from "@mui/material/Box";
+import type { PDFPageLayout, BoundField, FieldValue } from "../types";
+import { FieldRenderer } from "./fields/FieldRenderer";
+import { StaticBlockRenderer } from "./StaticBlockRenderer";
 
 interface Props {
   page: PDFPageLayout;
@@ -28,13 +28,13 @@ export const PageCanvas: React.FC<Props> = ({
   return (
     <Box
       sx={{
-        position: 'relative',
+        position: "relative",
         width: page.width * scale,
         height: page.height * scale,
-        backgroundColor: '#fff',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        mb: 3,
-        overflow: 'hidden',
+        backgroundColor: "#fff",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        mb: 1,
+        overflow: "hidden",
         flexShrink: 0,
       }}
     >
